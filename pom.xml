@@ -4,7 +4,7 @@
   <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
   <!-- that they should prefer consuming it instead. -->
   <!-- do_not_remove: published-with-gradle-metadata -->
-  <modelVersion>4.0.0</modelVersion> 
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
@@ -13,7 +13,7 @@
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
-  <version>2.14.3</version>
+  <version>2.14.3-lineaje-01</version>
   <packaging>bundle</packaging>
   <description>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</description>
   <licenses>
@@ -24,21 +24,18 @@
     </license>
   </licenses>
   <inceptionYear>2008</inceptionYear>
-
   <url>https://github.com/FasterXML/jackson-core</url>
   <scm>
-    <connection>scm:git:git@github.com:FasterXML/jackson-core.git</connection>
-    <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>
-    <url>https://github.com/FasterXML/jackson-core</url>
-    <tag>jackson-core-2.14.3</tag>
+    <connection>scm:git:jackson-core</connection>
+    <developerConnection>scm:git:jackson-core</developerConnection>
+    <url>jackson-core</url>
+    <tag>2.14.3-lineaje-01</tag>
   </scm>
-
   <properties>
     <!-- 03-May-2022: Change Java compatibility for Jackson-Core 2.14 from Java6 to Java8,
        still use Moditect to get JDK9+ module info support; need newer bundle plugin as well
        (can just defaults from `jackson-parent`)
       -->
-
     <!-- 16-Nov-2022, tatu: [core#838] Verify Android SDK compatibility.
          Baseline compatibility:
          * Jackson 2.13 compatible with Android SDK 19 and up
@@ -46,19 +43,15 @@
       -->
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
-
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
-
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
-
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2023-05-05T16:01:44Z</project.build.outputTimestamp>
   </properties>
-
   <!-- Alas, need to include snapshot reference since otherwise can not find
        snapshot of parent... -->
   <repositories>
@@ -66,19 +59,21 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Nexus Snapshots</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases><enabled>false</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
-
   <build>
     <plugins>
-
       <!-- 26-Aug-2019, tatu: JaCoCo for code coverage -->
       <plugin>
-	<groupId>org.jacoco</groupId>
-	<artifactId>jacoco-maven-plugin</artifactId>
-	<executions>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
           <execution>
             <goals>
               <goal>prepare-agent</goal>
@@ -93,19 +88,20 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </execution>
         </executions>
       </plugin>
-
       <!-- Important: enable enforcer plug-in: -->
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
-	<executions> <!-- or?  combine.children="merge"> -->
+        <executions>
+          <!-- or?  combine.children="merge"> -->
           <execution>
             <id>enforce-properties</id>
-	        <phase>validate</phase>
-            <goals><goal>enforce</goal></goals>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -119,7 +115,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
           <excludes>
             <exclude>**/failing/**/*.java</exclude>
           </excludes>
-<!-- 13-Apr-2018, tatu: for debugging [core#400]
+          <!-- 13-Apr-2018, tatu: for debugging [core#400]
           <systemPropertyVariables>
 <com.fasterxml.jackson.core.util.BufferRecyclers.trackReusableBuffers>true</com.fasterxml.jackson.core.util.BufferRecyclers.trackReusableBuffers>
           </systemPropertyVariables>
@@ -131,7 +127,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
-
       <!-- 04-Mar-2019, tatu: Add rudimentary JDK9+ module info. To build with JDK 8
              will have to use `moduleInfoFile` as anything else requires JDK 9+
         -->
@@ -144,12 +139,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
-      
       <plugin>
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
       </plugin>
-
       <!-- 16-Nov-2022, tatu: [core#838] add verification of compatibility
            wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
            To be run from CI, but manually with:
@@ -167,9 +160,28 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </signature>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <gpgArguments>
+            <arg>--pinentry-mode</arg>
+            <arg>loopback</arg>
+          </gpgArguments>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-
   <dependencies>
     <!-- Test dependencies -->
     <dependency>
@@ -185,5 +197,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <scope>test</scope>
     </dependency>
   </dependencies>
-
+  <contributors>
+    <contributor>
+      <name>Lineaje DepFixer</name>
+      <email>221268890+Lineaje-DepFixer@users.noreply.github.com</email>
+    </contributor>
+  </contributors>
 </project>
