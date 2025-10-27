@@ -29,20 +29,20 @@ public final class SegmentedStringWriter extends Writer
      */
 
     @Override
-    public Writer append(char c) {
+    public Writer append(char c) throws IOException {
         write(c);
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq) {
+    public Writer append(CharSequence csq) throws IOException {
         String str = csq.toString();
         _buffer.append(str, 0, str.length());
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq, int start, int end) {
+    public Writer append(CharSequence csq, int start, int end) throws IOException {
         String str = csq.subSequence(start, end).toString();
         _buffer.append(str, 0, str.length());
         return this;
@@ -52,19 +52,19 @@ public final class SegmentedStringWriter extends Writer
     @Override public void flush() { } // NOP
 
     @Override
-    public void write(char[] cbuf) { _buffer.append(cbuf, 0, cbuf.length); }
+    public void write(char[] cbuf) throws IOException { _buffer.append(cbuf, 0, cbuf.length); }
 
     @Override
-    public void write(char[] cbuf, int off, int len) { _buffer.append(cbuf, off, len); }
+    public void write(char[] cbuf, int off, int len) throws IOException { _buffer.append(cbuf, off, len); }
 
     @Override
-    public void write(int c) { _buffer.append((char) c); }
+    public void write(int c) throws IOException { _buffer.append((char) c); }
 
     @Override
-    public void write(String str) { _buffer.append(str, 0, str.length()); }
+    public void write(String str) throws IOException { _buffer.append(str, 0, str.length()); }
 
     @Override
-    public void write(String str, int off, int len) { _buffer.append(str, off, len); }
+    public void write(String str, int off, int len) throws IOException { _buffer.append(str, off, len); }
 
     /*
     /**********************************************************
@@ -78,10 +78,8 @@ public final class SegmentedStringWriter extends Writer
      * and return result String.
      * Note that the method is not idempotent -- if called second time,
      * will just return an empty String.
-     *
-     * @return String that contains all aggregated content
      */
-    public String getAndClear() {
+    public String getAndClear() throws IOException {
         String result = _buffer.contentsAsString();
         _buffer.releaseBuffers();
         return result;

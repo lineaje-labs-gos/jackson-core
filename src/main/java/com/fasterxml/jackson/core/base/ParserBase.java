@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -39,6 +40,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * for the reader.
      */
     final protected IOContext _ioContext;
+
+    protected final StreamReadConstraints _streamReadConstraints;
 
     /**
      * Flag that indicates whether parser is closed or not. Gets
@@ -250,6 +253,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected ParserBase(IOContext ctxt, int features) {
         super(features);
         _ioContext = ctxt;
+        _streamReadConstraints = ctxt.streamReadConstraints();
         _textBuffer = ctxt.constructTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
@@ -548,16 +552,15 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // // // Life-cycle of number-parsing
     
-    protected final JsonToken reset(boolean negative, int intLen, int fractLen, int expLen)
-    {
+    protected final JsonToken reset(boolean negative, int intLen, int fractLen, int expLen) throws StreamConstraintsException {
         if (fractLen < 1 && expLen < 1) { // integer
             return resetInt(negative, intLen);
         }
         return resetFloat(negative, intLen, fractLen, expLen);
     }
         
-    protected final JsonToken resetInt(boolean negative, int intLen)
-    {
+    protected final JsonToken resetInt(boolean negative, int intLen) throws StreamConstraintsException {
+        _streamReadConstraints.validateIntegerLength(intLen);
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = 0;
@@ -566,8 +569,8 @@ public abstract class ParserBase extends ParserMinimalBase
         return JsonToken.VALUE_NUMBER_INT;
     }
     
-    protected final JsonToken resetFloat(boolean negative, int intLen, int fractLen, int expLen)
-    {
+    protected final JsonToken resetFloat(boolean negative, int intLen, int fractLen, int expLen) throws StreamConstraintsException {
+        _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = fractLen;
@@ -576,8 +579,7 @@ public abstract class ParserBase extends ParserMinimalBase
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
     
-    protected final JsonToken resetAsNaN(String valueStr, double value)
-    {
+    protected final JsonToken resetAsNaN(String valueStr, double value) throws IOException {
         _textBuffer.resetWithString(valueStr);
         _numberDouble = value;
         _numTypesValid = NR_DOUBLE;
@@ -1394,5 +1396,16 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
+
+
+    protected final void createChildArrayContext(final int lineNr, final int colNr) throws IOException {
+        _parsingContext = _parsingContext.createChildArrayContext(lineNr, colNr);
+        _streamReadConstraints.validateNestingDepth(_parsingContext.getNestingDepth());
+    }
+
+    protected final void createChildObjectContext(final int lineNr, final int colNr) throws IOException {
+        _parsingContext = _parsingContext.createChildObjectContext(lineNr, colNr);
+        _streamReadConstraints.validateNestingDepth(_parsingContext.getNestingDepth());
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
@@ -146,7 +147,7 @@ public class BufferRecyclers
      *    in 2.12.5, to be removed from 3.0)
      */
     @Deprecated
-    public static char[] quoteAsJsonText(String rawText) {
+    public static char[] quoteAsJsonText(String rawText) throws IOException {
         return JsonStringEncoder.getInstance().quoteAsString(rawText);
     }
 

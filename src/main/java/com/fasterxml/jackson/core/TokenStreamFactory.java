@@ -137,6 +137,8 @@ public abstract class TokenStreamFactory
     public abstract int getFormatParserFeatures();
     public abstract int getFormatGeneratorFeatures();
 
+    public abstract StreamReadConstraints streamReadConstraints();
+
     /*
     /**********************************************************************
     /* Factory methods, parsers

@@ -101,7 +101,7 @@ public class SerializedString
      * quoting rules (using backslash-prefixed codes) into a char array.
      */
     @Override
-    public final char[] asQuotedChars() {
+    public final char[] asQuotedChars() throws IOException {
         char[] result = _quotedChars;
         if (result == null) {
             _quotedChars = result = JSON_ENCODER.quoteAsString(_value);
@@ -143,7 +143,7 @@ public class SerializedString
      */
 
     @Override
-    public int appendQuoted(char[] buffer, int offset) {
+    public int appendQuoted(char[] buffer, int offset) throws IOException {
         char[] result = _quotedChars;
         if (result == null) {
             _quotedChars = result = JSON_ENCODER.quoteAsString(_value);

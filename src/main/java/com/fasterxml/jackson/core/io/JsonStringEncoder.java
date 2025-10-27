@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -74,8 +75,7 @@ public final class JsonStringEncoder
      *
      * @return JSON-escaped String matching {@code input}
      */
-    public char[] quoteAsString(String input)
-    {
+    public char[] quoteAsString(String input) throws IOException {
         final int inputLen = input.length();
         char[] outputBuffer = new char[_initialCharBufSize(inputLen)];
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
@@ -149,8 +149,7 @@ public final class JsonStringEncoder
      *
      * @since 2.10
      */
-    public char[] quoteAsString(CharSequence input)
-    {
+    public char[] quoteAsString(CharSequence input) throws IOException {
         // 15-Aug-2019, tatu: Optimize common case as JIT can't get rid of overhead otherwise
         if (input instanceof String) {
             return quoteAsString((String) input);

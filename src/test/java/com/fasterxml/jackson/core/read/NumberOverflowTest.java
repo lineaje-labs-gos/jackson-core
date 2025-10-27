@@ -6,11 +6,14 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 
 public class NumberOverflowTest
-    extends com.fasterxml.jackson.core.BaseTest
+        extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory FACTORY = new JsonFactory();
+    private final JsonFactory FACTORY = JsonFactory.builder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1000000).build())
+            .build();
 
     // NOTE: this should be long enough to trigger perf problems
+    // 19-
     private final static int BIG_NUM_LEN = 199999;
     private final static String BIG_POS_INTEGER;
     static {
@@ -65,7 +68,7 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
-                JsonParser p = createParser(mode, doc);
+                JsonParser p = createParser(FACTORY, mode, doc);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 try {
@@ -78,14 +81,14 @@ public class NumberOverflowTest
                 p.close();
             }
         }
-    }    
+    }
 
     // [jackson-core#488]
     public void testMaliciousIntOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
-                JsonParser p = createParser(mode, doc);
+                JsonParser p = createParser(FACTORY, mode, doc);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 try {
@@ -98,14 +101,14 @@ public class NumberOverflowTest
                 p.close();
             }
         }
-    }    
+    }
 
     // [jackson-core#488]
     public void testMaliciousBigIntToDouble() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
-            JsonParser p = createParser(mode, doc);
+            JsonParser p = createParser(FACTORY, mode, doc);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             double d = p.getDoubleValue();
@@ -113,14 +116,14 @@ public class NumberOverflowTest
             assertToken(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
-    }    
+    }
 
     // [jackson-core#488]
     public void testMaliciousBigIntToFloat() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
-            JsonParser p = createParser(mode, doc);
+            JsonParser p = createParser(FACTORY, mode, doc);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             float f = p.getFloatValue();
