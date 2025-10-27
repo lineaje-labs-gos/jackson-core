@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.core.io;
 
 import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
 /**
@@ -60,6 +62,8 @@ public class IOContext
      */
     protected final BufferRecycler _bufferRecycler;
 
+    protected final StreamReadConstraints _streamReadConstraints;
+
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
      * if any allocated.
@@ -108,24 +112,46 @@ public class IOContext
 
     /**
      * Main constructor to use.
-     * 
+     *
+     * @param src constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
-     * @since 2.13
+     * @since 2.15
      */
-    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
+    public IOContext(StreamReadConstraints src, BufferRecycler br,
+                     ContentReference contentRef, boolean managedResource)
     {
+        _streamReadConstraints = (src == null) ?
+                StreamReadConstraints.defaults() : src;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
     }
 
+    /**
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     */
+    @Deprecated // since 2.15
+    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
+    {
+        this(null, br, contentRef, managedResource);
+    }
+
     @Deprecated // since 2.13
     public IOContext(BufferRecycler br, Object rawContent, boolean managedResource) {
         this(br, ContentReference.rawReference(rawContent), managedResource);
+    }
+
+    /**
+     * @return constraints for streaming reads
+     */
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamReadConstraints;
     }
 
     public void setEncoding(JsonEncoding enc) {
@@ -173,6 +199,10 @@ public class IOContext
 
     public TextBuffer constructTextBuffer() {
         return new TextBuffer(_bufferRecycler);
+    }
+
+    public TextBuffer constructReadConstrainedTextBuffer() {
+        return new ReadConstrainedTextBuffer(_streamReadConstraints, _bufferRecycler);
     }
 
     /**

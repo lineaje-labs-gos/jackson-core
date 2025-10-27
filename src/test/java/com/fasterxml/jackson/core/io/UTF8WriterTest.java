@@ -5,6 +5,7 @@ import java.io.*;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 
 public class UTF8WriterTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -149,6 +150,7 @@ public class UTF8WriterTest
     }
 
     private IOContext _ioContext(BufferRecycler br) {
-        return new IOContext(br, ContentReference.unknown(), false);
+        return new IOContext(StreamReadConstraints.defaults(),
+                br, ContentReference.unknown(), false);
     }
 }

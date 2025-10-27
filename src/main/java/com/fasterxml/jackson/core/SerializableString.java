@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  *<p>
  * Note that "quoted" in methods means quoting of 'special' characters using
  * JSON backlash notation (and not use of actual double quotes).
- * 
+ *
  * @see com.fasterxml.jackson.core.io.SerializedString
  */
 public interface SerializableString
@@ -26,19 +26,15 @@ public interface SerializableString
     /**
      * Returns unquoted String that this object represents (and offers
      * serialized forms for)
-     *
-     * @return Unquoted String
      */
     String getValue();
-    
+
     /**
      * Returns length of the (unquoted) String as characters.
      * Functionally equivalent to:
      *<pre>
      *   getValue().length();
      *</pre>
-     *
-     * @return Length of the String in characters
      */
     int charLength();
 
@@ -47,14 +43,12 @@ public interface SerializableString
     /* Accessors for byte sequences
     /**********************************************************
      */
-    
+
     /**
      * Returns JSON quoted form of the String, as character array.
      * Result can be embedded as-is in textual JSON as property name or JSON String.
-     *
-     * @return JSON quoted form of the String as {@code char[]}
      */
-    char[] asQuotedChars();
+    char[] asQuotedChars() throws IOException;
 
     /**
      * Returns UTF-8 encoded version of unquoted String.
@@ -62,8 +56,6 @@ public interface SerializableString
      *<pre>
      * getValue().getBytes("UTF-8");
      *</pre>
-     *
-     * @return UTF-8 encoded version of String, without any escaping
      */
     byte[] asUnquotedUTF8();
 
@@ -73,8 +65,6 @@ public interface SerializableString
      *<pre>
      * new String(asQuotedChars()).getBytes("UTF-8");
      *</pre>
-     *
-     * @return UTF-8 encoded version of JSON-escaped String
      */
     byte[] asQuotedUTF8();
 
@@ -94,9 +84,6 @@ public interface SerializableString
      *  return bytes.length;
      *</pre>
      *
-     * @param buffer Buffer to append JSON-escaped String into
-     * @param offset Offset in {@code buffer} to append String at
-     *
      * @return Number of bytes appended, if successful, otherwise -1
      */
     int appendQuotedUTF8(byte[] buffer, int offset);
@@ -110,13 +97,10 @@ public interface SerializableString
      *  return ch.length;
      *</pre>
      *
-     * @param buffer Buffer to append JSON-escaped String into
-     * @param offset Offset in {@code buffer} to append String at
-     * 
      * @return Number of characters appended, if successful, otherwise -1
      */
-    int appendQuoted(char[] buffer, int offset);
-    
+    int appendQuoted(char[] buffer, int offset) throws IOException;
+
     /**
      * Method that will append unquoted ('raw') UTF-8 bytes of this String into given
      * buffer. Functionally equivalent to:
@@ -126,12 +110,10 @@ public interface SerializableString
      *  return bytes.length;
      *</pre>
      *
-     * @param buffer Buffer to append literal (unescaped) String into
-     * @param offset Offset in {@code buffer} to append String at
-     * 
      * @return Number of bytes appended, if successful, otherwise -1
      */
     int appendUnquotedUTF8(byte[] buffer, int offset);
+
 
     /**
      * Method that will append unquoted characters of this String into given
@@ -142,9 +124,6 @@ public interface SerializableString
      *  return ch.length;
      *</pre>
      *
-     * @param buffer Buffer to append literal (unescaped) String into
-     * @param offset Offset in {@code buffer} to append String at
-     * 
      * @return Number of characters appended, if successful, otherwise -1
      */
     int appendUnquoted(char[] buffer, int offset);
@@ -156,50 +135,22 @@ public interface SerializableString
      */
 
     /**
-     * Method for writing JSON-escaped UTF-8 encoded String value using given
-     * {@link java.io.OutputStream}.
-     *
-     * @param out {@link java.io.OutputStream} to write String into
-     *
      * @return Number of bytes written
-     *
-     * @throws IOException if underlying stream write fails
      */
     int writeQuotedUTF8(OutputStream out) throws IOException;
 
     /**
-     * Method for writing unescaped UTF-8 encoded String value using given
-     * {@link java.io.OutputStream}.
-     *
-     * @param out {@link java.io.OutputStream} to write String into
-     *
      * @return Number of bytes written
-     *
-     * @throws IOException if underlying stream write fails
      */
     int writeUnquotedUTF8(OutputStream out) throws IOException;
 
     /**
-     * Method for appending JSON-escaped UTF-8 encoded String value into given
-     * {@link java.nio.ByteBuffer}, if it fits.
-     *
-     * @param buffer {@link java.nio.ByteBuffer} to append String into
-     *
-     * @return Number of bytes put, if contents fit, otherwise -1
-     *
-     * @throws IOException if underlying buffer append operation fails
+     * @return Number of bytes put, if successful, otherwise -1
      */
     int putQuotedUTF8(ByteBuffer buffer) throws IOException;
 
     /**
-     * Method for appending unquoted ('raw') UTF-8 encoded String value into given
-     * {@link java.nio.ByteBuffer}, if it fits.
-     *
-     * @param buffer {@link java.nio.ByteBuffer} to append String into
-     *
-     * @return Number of bytes put, if contents fit, otherwise -1
-     *
-     * @throws IOException if underlying buffer append operation fails
+     * @return Number of bytes put, if successful, otherwise -1
      */
-    int putUnquotedUTF8(ByteBuffer buffer) throws IOException;
+    int putUnquotedUTF8(ByteBuffer out) throws IOException;
 }
