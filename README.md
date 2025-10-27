@@ -103,6 +103,34 @@ instance of which is constructed by `JsonFactory`:
 
 An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
+## Processing limits
+
+In this particular version Jackson 2.14.3 patched, Jackson has configurable limits for some aspects of input decoding and output generation.
+
+Implemented limits are:
+
+* Length are expressed in input/output units -- `byte`s or `char`s -- depending on input source
+* Defined as longest allowed length, but not necessarily imposed at 100% accuracy: that is, if maximum allowed length is specified as 1000 units, something with length of, say 1003 may not cause exception (but 1500 would typically do)
+* Defined using new `StreamReadConstraints` classes, configurable on per-`JsonFactory` basis
+* Main focus is to reduce likelihood of excessive memory usage/retention and/or processing costs; not validation
+
+### Input parsing limits
+
+* Maximum Input nesting depth: (see https://github.com/FasterXML/jackson-core/pull/943)
+    * Default: 1000 levels
+
+### Re-configuring limits
+
+You can change per-factory limits as follows:
+
+```java
+JsonFactory f = JsonFactory.builder()
+  .streamReadConstraints(StreamReadConstraints.builder().maxDocumentLength(10_000_000L).build())
+  .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
+  .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
+  .build();
+```
+
 -----
 ## Compatibility
 
